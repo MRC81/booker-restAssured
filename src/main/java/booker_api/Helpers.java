@@ -114,7 +114,7 @@ public class Helpers {
      *
      * @param pojo - input POJO argument
      * @return - String with JSON from the POJO
-     * @throws JsonProcessingException
+     * @throws JsonProcessingException in case of problems with JSON processing
      */
     public static String pojoToJson(Object pojo) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
@@ -146,6 +146,31 @@ public class Helpers {
                 .body(equalTo("Created")); // I assume it should be 'Deleted' but it returns 'Created'
     }
 
+
+    /** This method verifies that the restful-booker.herokuapp.com service is available via the Ping entry point
+     *
+     * @return - true if EP returns code 201 and the body 'Created' otherwise - false
+     */
+    @Step("Check the Service availability")
+    public static boolean isServiceAvailable() {
+        // set parser to work with 'text/plain'
+        RestAssured.registerParser("text/plain", Parser.TEXT);
+
+        Response response =
+                given().header("Authorization", " Basic YWRtaW46cGFzc3dvcmQxMjM=")
+                    .contentType(ContentType.TEXT)
+                    .log()
+                    .ifValidationFails(LogDetail.ALL)
+                .when()
+                    .get("https://restful-booker.herokuapp.com/ping")
+                .then()
+                    .log()
+                    .ifValidationFails(LogDetail.ALL)
+               .extract().response();
+
+        return response.statusCode() == 201
+                && response.body().prettyPrint().equals("Created");
+    }
 
 
 }

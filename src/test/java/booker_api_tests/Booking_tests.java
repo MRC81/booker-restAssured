@@ -1,6 +1,7 @@
 package booker_api_tests;
 
-import booker_api.BookingPOJO;
+import booker_api.POJOs.BookingDates;
+import booker_api.POJOs.Booking;
 import booker_api.SetUp;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.qameta.allure.Description;
@@ -22,24 +23,24 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+//@SkipWhenServiceIsUnavailable
 public class Booking_tests extends SetUp {
 
     @Test
     @Description("This test verifies that getBooking EP returns code 200 if a valid id was provided " +
             "and the information about the booking record of the corresponding id.")
     @DisplayName("Verifies getBooking EP code 200 case")
-    public void getBooking_code200() throws JsonProcessingException {
-        BookingPOJO payloadPOJO = new BookingPOJO(
+    public void getBooking_code200_test() throws JsonProcessingException {
+        Booking payloadPOJO = new Booking(
             "Bob",
             "Cowley",
             "",
             50,
             false,
-            new BookingPOJO.Bookingdates("2021-06-23", "2021-06-27")
+            new BookingDates("2021-06-23", "2021-06-27")
         );
         step("New booking POJO", () ->
-                attachment("Create a new booking POJO", payloadPOJO.printPOJO())
+                attachment("Create a new booking POJO", payloadPOJO.BookingToString())
         );
 
         int newBookingId = createBooking(pojoToJson(payloadPOJO));
@@ -72,21 +73,22 @@ public class Booking_tests extends SetUp {
     }
 
 
+
     @Test
     @Description("This test verifies that createBooking EP returns code 200 if a valid JSON input was provided " +
             "and creates a new booking record which data matches the input.")
     @DisplayName("Verifies createBooking EP code 200 case")
-    public void createBooking_code200() {
-        BookingPOJO payloadPOJO = new BookingPOJO(
+    public void createBooking_code200_test() {
+        Booking payloadPOJO = new Booking(
                 "John",
                 "Smith",
                 "Breakfast",
                 100,
                 true,
-                new BookingPOJO.Bookingdates("2021-04-01", "2021-04-10")
+                new BookingDates("2021-04-01", "2021-04-10")
         );
         step("Create a new booking POJO", () ->
-                attachment("New booking POJO", payloadPOJO.printPOJO())
+                attachment("New booking POJO", payloadPOJO.BookingToString())
         );
 
         int id = step("Send a request with the POJO and verify that the response is correct",
@@ -131,34 +133,35 @@ public class Booking_tests extends SetUp {
     }
 
 
+
     @Issue("EP returns '403 - Forbidden' with the auth token although requirements were met")
     @Test
     @Description("This test verifies that updateBooking EP returns code 200 if a valid id and a valid JSON update " +
             "data were provided and the update data was applied to the booking record of the corresponding id.")
     @DisplayName("Verifies updateBooking EP code 200 case")
-    public void updateBooking_code200() throws JsonProcessingException {
-        BookingPOJO payloadPOJO = new BookingPOJO(
+    public void updateBooking_code200_test() throws JsonProcessingException {
+        Booking payloadPOJO = new Booking(
                 "John",
                 "Doe",
                 "Coffin",
                 10,
                 true,
-                new BookingPOJO.Bookingdates("2021-01-01", "2021-01-02")
+                new BookingDates("2021-01-01", "2021-01-02")
         );
         step("Create a new booking POJO", () ->
-                attachment("New booking POJO", payloadPOJO.printPOJO())
+                attachment("New booking POJO", payloadPOJO.BookingToString())
         );
 
-        BookingPOJO updatePOJO = new BookingPOJO(
+        Booking updatePOJO = new Booking(
                 "John",
                 "MoveOn",
                 "Coffee",
                 0,
                 false,
-                new BookingPOJO.Bookingdates("2021-01-02", "2021-01-03")
+                new BookingDates("2021-01-02", "2021-01-03")
         );
         step("Create the update POJO for the new booking POJO", () ->
-                attachment("Update POJO", updatePOJO.printPOJO())
+                attachment("Update POJO", updatePOJO.BookingToString())
         );
 
         int bookingId = createBooking(pojoToJson(payloadPOJO));
@@ -193,23 +196,24 @@ public class Booking_tests extends SetUp {
     }
 
 
+
     @Issue("EP returns '403 - Forbidden' with the auth token although requirements were met")
     @Test
     @Description("This test verifies that partialUpdateBooking EP returns code 200 if a valid id and a valid JSON " +
             "partial update data were provided and the partial update data was applied to the booking record of " +
             "the corresponding id.")
     @DisplayName("Verifies partialUpdateBooking EP code 200 case")
-    public void partialUpdateBooking_code200() throws JsonProcessingException {
-        BookingPOJO payloadPOJO = new BookingPOJO(
+    public void partialUpdateBooking_code200_test() throws JsonProcessingException {
+        Booking payloadPOJO = new Booking(
                 "Gandalf",
                 "Gray",
                 "Staff",
                 1000,
                 true,
-                new BookingPOJO.Bookingdates("2001-05-01", "2001-07-12")
+                new BookingDates("2001-05-01", "2001-07-12")
         );
         step("Create a new booking POJO", () ->
-                attachment("New booking POJO", payloadPOJO.printPOJO())
+                attachment("New booking POJO", payloadPOJO.BookingToString())
         );
 
         String partialUpdateJSON = "{\n" +
@@ -257,22 +261,22 @@ public class Booking_tests extends SetUp {
     @Test
     @Description("This test verifies that deleteBooking EP deletes the booking record of the specified valid id.")
     @DisplayName("Verifies deleteBooking EP code 200 case")
-    public void deleteBooking_code201() {
+    public void deleteBooking_code201_test() {
         List<Integer> listOfIds = getAllBookingIds();
 
         int bookingIdToDelete = step("Define which ID will be deleted", () -> {
             // if there are no booking ids yet create a new on to be deleted otherwise pick the 1st one from existed
             if (listOfIds.isEmpty()) {
-                BookingPOJO payloadPOJO = new BookingPOJO(
+                Booking payloadPOJO = new Booking(
                         "Billy",
                         "Bones",
                         "Rum",
                         0,
                         false,
-                        new BookingPOJO.Bookingdates("1765-06-23", "1765-06-27")
+                        new BookingDates("1765-06-23", "1765-06-27")
                 );
                 step("Create a new booking POJO", () ->
-                        attachment("New booking POJO", payloadPOJO.printPOJO())
+                        attachment("New booking POJO", payloadPOJO.BookingToString())
                 );
 
                 return createBooking(pojoToJson(payloadPOJO));
@@ -289,8 +293,6 @@ public class Booking_tests extends SetUp {
                 () -> assertFalse(newListOfIds.contains(bookingIdToDelete), "The id '" + bookingIdToDelete +
                         "' which should have been deleted is present in the list of existing IDs: " + listOfIds));
     }
-
-
 
 
 }
